@@ -17,6 +17,8 @@
 #define M_MEDIO 70 //macro medio
 #define M_FORTE 90 //macro forte
 #define MAX_LUNGHEZZA_PASSWORD 15
+#define GENERAZIONE_MIN 33
+#define GENERAZIONE_MAX 126
 
 //enum-struct
 typedef enum{MOLTO_DEBOLE, DEBOLE, MEDIO, FORTE, MOLTO_FORTE} LivelloSicurezza;
@@ -37,12 +39,18 @@ void menu();
 Analizzatore passwordAnalyzer(char password[]);
 void stampaRisultati(Analizzatore analisi);
 void mostraSuggerimenti();
+char *generatoreDiPassword(int dim);
+void stampaPassword( char *password);
 
 int main(void) {
+
+    srand(time(NULL));
 
     //variabili
     int scelta;
     char password[MAX_LUNGHEZZA_PASSWORD + UNO];
+    char *databasePasswordGenerate = NULL;
+    int dim = MAX_LUNGHEZZA_PASSWORD;
 
     //stampa menu
     do {
@@ -63,7 +71,11 @@ int main(void) {
                 stampaRisultati(passwordAnalyzer(password));
                 break;
             case GENERA:
-                printf("Funzione non ancora disponibile\n\n");
+
+                databasePasswordGenerate = generatoreDiPassword( dim );
+                stampaPassword(databasePasswordGenerate);
+
+                free(databasePasswordGenerate);
                 break;
             case MOSTRA_SUGGERIMENTI:
                 mostraSuggerimenti();
@@ -237,4 +249,36 @@ void mostraSuggerimenti() {
     printf("- Evita parole comuni o date di nascita\n");
     printf("- Non riutilizzare la stessa password\n");
     printf("- Cambia password regolarmente\n\n");
+}
+
+//funzione di generazione di password forte casuale
+char *generatoreDiPassword(int dim) {
+    char *stringa = (char*)malloc((dim + UNO) * sizeof(char)); // +1 per '\0'
+
+    if (stringa == NULL) {
+        printf("Generazione non portata a termine\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Insieme di caratteri validi per la password
+    const char caratteri[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+    int num_caratteri = strlen(caratteri);
+
+    for (int i = ZERO; i < dim; i++) {
+        stringa[i] = caratteri[rand() % num_caratteri];
+    }
+
+    stringa[dim] = '\0'; // Terminatore nullo
+
+    return stringa;
+}
+
+//stampa password generata
+void stampaPassword( char *password) {
+
+    int lunghezza = strlen(password);
+
+    // Stampa completa
+    printf("Password generata: %s\n", password);
+    printf("Ora provala sull'analizzatore\n\n");
 }
