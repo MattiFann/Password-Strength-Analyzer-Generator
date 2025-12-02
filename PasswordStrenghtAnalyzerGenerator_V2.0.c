@@ -1,3 +1,6 @@
+/*
+    This code version now supports two languages: italian and english; v2.0, release date 02/12/2025
+*/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
