@@ -22,7 +22,8 @@
 
 //enum-struct
 typedef enum{MOLTO_DEBOLE, DEBOLE, MEDIO, FORTE, MOLTO_FORTE} LivelloSicurezza;
-typedef enum{ESCI, ANALIZZA, GENERA, MOSTRA_SUGGERIMENTI};
+typedef enum{ESCI, ANALIZZA, GENERA, MOSTRA_SUGGERIMENTI} Opzioni;
+typedef enum{ITALIANO = 1, INGLESE = 2} Lingua;
 
 typedef struct {
     int lunghezza;
@@ -35,70 +36,119 @@ typedef struct {
 } Analizzatore;
 
 //inizializzazione funzioni
-void menu();
+void sceltaLingua(int *linguaScelta);
+void menu(int linguaScelta);
 Analizzatore passwordAnalyzer(char password[]);
-void stampaRisultati(Analizzatore analisi);
-void mostraSuggerimenti();
+void stampaRisultati(Analizzatore analisi, int linguaScelta);
+void mostraSuggerimenti(int linguaScelta);
 char *generatoreDiPassword(int dim);
-void stampaPassword( char *password);
+void stampaPassword(char *password, int linguaScelta);
 
 int main(void) {
 
     srand(time(NULL));
 
     //variabili
+    int linguaScelta;
     int scelta;
     char password[MAX_LUNGHEZZA_PASSWORD + UNO];
     char *databasePasswordGenerate = NULL;
     int dim = MAX_LUNGHEZZA_PASSWORD;
 
+    //selezione lingua
+    sceltaLingua(&linguaScelta);
+
     //stampa menu
     do {
-        menu();
-        printf("\nScelta: ");
+        menu(linguaScelta);
+        if (linguaScelta == ITALIANO) {
+            printf("\nScelta: ");
+        } else {
+            printf("\nChoice: ");
+        }
         scanf("%d", &scelta);
 
         //switch che permette la scelta dell'opzione
         switch (scelta) {
             case ESCI:
-                printf("Chiusura programma in corso\n");
+                if (linguaScelta == ITALIANO) {
+                    printf("Chiusura programma in corso\n");
+                } else {
+                    printf("Closing program\n");
+                }
                 break;
             case ANALIZZA:
-                printf("Scrivi una password\n");
+                if (linguaScelta == ITALIANO) {
+                    printf("Scrivi una password\n");
+                } else {
+                    printf("Enter a password\n");
+                }
                 scanf("%s", password);
 
                 //chiamo la funzione analizza
-                stampaRisultati(passwordAnalyzer(password));
+                stampaRisultati(passwordAnalyzer(password), linguaScelta);
                 break;
             case GENERA:
 
-                databasePasswordGenerate = generatoreDiPassword( dim );
-                stampaPassword(databasePasswordGenerate);
+                databasePasswordGenerate = generatoreDiPassword(dim);
+                stampaPassword(databasePasswordGenerate, linguaScelta);
 
                 free(databasePasswordGenerate);
                 break;
             case MOSTRA_SUGGERIMENTI:
-                mostraSuggerimenti();
+                mostraSuggerimenti(linguaScelta);
                 break;
             default:
-                printf("Scelta non valida\n\n");
+                if (linguaScelta == ITALIANO) {
+                    printf("Scelta non valida\n\n");
+                } else {
+                    printf("Invalid choice\n\n");
+                }
         }
 
     } while (scelta != ZERO);
 
 
-    return 0;
+    return EXIT_SUCCESS;
+}
+
+//funzione scelta lingua
+void sceltaLingua(int *linguaScelta) {
+    printf("============================\n");
+    printf("   LANGUAGE / LINGUA\n");
+    printf("============================\n");
+    printf("1) Italiano\n");
+    printf("2) English\n");
+    printf("\nScelta / Choice: ");
+    scanf("%d", linguaScelta);
+
+    while (*linguaScelta != ITALIANO && *linguaScelta != INGLESE) {
+        printf("Scelta non valida / Invalid choice\n");
+        printf("Scelta / Choice: ");
+        scanf("%d", linguaScelta);
+    }
+    printf("\n");
 }
 
 //funzione stampa del menu
-void menu() {
-    printf("============================\n");
-    printf(" PASSWORD SECURITY ANALYZER\n");
-    printf("============================\n");
-    printf("1) Analizza una password\n");
-    printf("2) Genera una password sicura\n");
-    printf("3) Mostra suggerimenti di sicurezza\n");
-    printf("0) Esci\n");
+void menu(int linguaScelta) {
+    if (linguaScelta == ITALIANO) {
+        printf("============================\n");
+        printf(" PASSWORD SECURITY ANALYZER\n");
+        printf("============================\n");
+        printf("1) Analizza una password\n");
+        printf("2) Genera una password sicura\n");
+        printf("3) Mostra suggerimenti di sicurezza\n");
+        printf("0) Esci\n");
+    } else {
+        printf("============================\n");
+        printf(" PASSWORD SECURITY ANALYZER\n");
+        printf("============================\n");
+        printf("1) Analyze a password\n");
+        printf("2) Generate a secure password\n");
+        printf("3) Show security tips\n");
+        printf("0) Exit\n");
+    }
 }
 
 //funzione calcolo sicurezza con sistema di punteggio
@@ -187,68 +237,129 @@ Analizzatore passwordAnalyzer(char password[]) {
 }
 
 //funzione della stampa risultati
-void stampaRisultati(Analizzatore analisi) {
+void stampaRisultati(Analizzatore analisi, int linguaScelta) {
     //variabili
 
-    //stampe
-    printf("\n>RISULTATI:\n");
-    // Stampa la lunghezza
-    printf("Lunghezza: %d caratteri\n", analisi.lunghezza);
+    if (linguaScelta == ITALIANO) {
+        //stampe
+        printf("\n>RISULTATI:\n");
+        // Stampa la lunghezza
+        printf("Lunghezza: %d caratteri\n", analisi.lunghezza);
 
-    // Stampa se ha maiuscole
-    if (analisi.contieneMaiuscole == UNO) {
-        printf("Maiuscole: SI\n");
+        // Stampa se ha maiuscole
+        if (analisi.contieneMaiuscole == UNO) {
+            printf("Maiuscole: SI\n");
+        } else {
+            printf("Maiuscole: NO\n");
+        }
+
+        // Stampa se ha minuscole
+        if (analisi.contieneMinuscole == UNO) {
+            printf("Minuscole: SI\n");
+        } else {
+            printf("Minuscole: NO\n");
+        }
+
+        // Stampa se ha numeri
+        if (analisi.contieneNumeri == UNO) {
+            printf("Numeri: SI\n");
+        } else {
+            printf("Numeri: NO\n");
+        }
+
+        // Stampa se ha caratteri speciali
+        if (analisi.contieneSpeciali == UNO) {
+            printf("Caratteri speciali: SI\n");
+        } else {
+            printf("Caratteri speciali: NO\n");
+        }
+
+        // Stampa lo score
+        printf("\nScore: %d/100\n", analisi.score);
+
+        // Stampa il livello
+        printf("Livello: ");
+        if (analisi.livelloSicurezza == MOLTO_DEBOLE) {
+            printf("MOLTO DEBOLE\n\n");
+        } else if (analisi.livelloSicurezza == DEBOLE) {
+            printf("DEBOLE\n\n");
+        } else if (analisi.livelloSicurezza == MEDIO) {
+            printf("MEDIO\n\n");
+        } else if (analisi.livelloSicurezza == FORTE) {
+            printf("FORTE\n\n");
+        } else {
+            printf("MOLTO FORTE\n\n");
+        }
     } else {
-        printf("Maiuscole: NO\n");
-    }
+        //stampe
+        printf("\n>RESULTS:\n");
+        // Stampa la lunghezza
+        printf("Length: %d characters\n", analisi.lunghezza);
 
-    // Stampa se ha minuscole
-    if (analisi.contieneMinuscole == UNO) {
-        printf("Minuscole: SI\n");
-    } else {
-        printf("Minuscole: NO\n");
-    }
+        // Stampa se ha maiuscole
+        if (analisi.contieneMaiuscole == UNO) {
+            printf("Uppercase: YES\n");
+        } else {
+            printf("Uppercase: NO\n");
+        }
 
-    // Stampa se ha numeri
-    if (analisi.contieneNumeri == UNO) {
-        printf("Numeri: SI\n");
-    } else {
-        printf("Numeri: NO\n");
-    }
+        // Stampa se ha minuscole
+        if (analisi.contieneMinuscole == UNO) {
+            printf("Lowercase: YES\n");
+        } else {
+            printf("Lowercase: NO\n");
+        }
 
-    // Stampa se ha caratteri speciali
-    if (analisi.contieneSpeciali == UNO) {
-        printf("Caratteri speciali: SI\n");
-    } else {
-        printf("Caratteri speciali: NO\n");
-    }
+        // Stampa se ha numeri
+        if (analisi.contieneNumeri == UNO) {
+            printf("Numbers: YES\n");
+        } else {
+            printf("Numbers: NO\n");
+        }
 
-    // Stampa lo score
-    printf("\nScore: %d/100\n", analisi.score);
+        // Stampa se ha caratteri speciali
+        if (analisi.contieneSpeciali == UNO) {
+            printf("Special characters: YES\n");
+        } else {
+            printf("Special characters: NO\n");
+        }
 
-    // Stampa il livello
-    printf("Livello: ");
-    if (analisi.livelloSicurezza == MOLTO_DEBOLE) {
-        printf("MOLTO DEBOLE\n\n");
-    } else if (analisi.livelloSicurezza == DEBOLE) {
-        printf("DEBOLE\n\n");
-    } else if (analisi.livelloSicurezza == MEDIO) {
-        printf("MEDIO\n\n");
-    } else if (analisi.livelloSicurezza == FORTE) {
-        printf("FORTE\n\n");
-    } else {
-        printf("MOLTO FORTE\n\n");
+        // Stampa lo score
+        printf("\nScore: %d/100\n", analisi.score);
+
+        // Stampa il livello
+        printf("Level: ");
+        if (analisi.livelloSicurezza == MOLTO_DEBOLE) {
+            printf("VERY WEAK\n\n");
+        } else if (analisi.livelloSicurezza == DEBOLE) {
+            printf("WEAK\n\n");
+        } else if (analisi.livelloSicurezza == MEDIO) {
+            printf("MEDIUM\n\n");
+        } else if (analisi.livelloSicurezza == FORTE) {
+            printf("STRONG\n\n");
+        } else {
+            printf("VERY STRONG\n\n");
+        }
     }
 }
 
 //funzione mostra suggerimenti
-void mostraSuggerimenti() {
-    printf("\n--- SUGGERIMENTI DI SICUREZZA ---\n");
-    printf("- Usa almeno 12 caratteri\n");
-    printf("- Combina maiuscole, minuscole, numeri e simboli\n");
-    printf("- Evita parole comuni o date di nascita\n");
-    printf("- Non riutilizzare la stessa password\n");
-    printf("- Cambia password regolarmente\n\n");
+void mostraSuggerimenti(int linguaScelta) {
+    if (linguaScelta == ITALIANO) {
+        printf("\n--- SUGGERIMENTI DI SICUREZZA ---\n");
+        printf("- Usa almeno 12 caratteri\n");
+        printf("- Combina maiuscole, minuscole, numeri e simboli\n");
+        printf("- Evita parole comuni o date di nascita\n");
+        printf("- Non riutilizzare la stessa password\n");
+        printf("- Cambia password regolarmente\n\n");
+    } else {
+        printf("\n--- SECURITY TIPS ---\n");
+        printf("- Use at least 12 characters\n");
+        printf("- Combine uppercase, lowercase, numbers and symbols\n");
+        printf("- Avoid common words or birth dates\n");
+        printf("- Don't reuse the same password\n");
+        printf("- Change passwords regularly\n\n");
+    }
 }
 
 //funzione di generazione di password forte casuale
@@ -274,11 +385,17 @@ char *generatoreDiPassword(int dim) {
 }
 
 //stampa password generata
-void stampaPassword( char *password) {
+void stampaPassword(char *password, int linguaScelta) {
 
     int lunghezza = strlen(password);
 
-    // Stampa completa
-    printf("Password generata: %s\n", password);
-    printf("Ora provala sull'analizzatore\n\n");
+    if (linguaScelta == ITALIANO) {
+        // Stampa completa
+        printf("Password generata: %s\n", password);
+        printf("Ora provala sull'analizzatore\n\n");
+    } else {
+        // Stampa completa
+        printf("Generated password: %s\n", password);
+        printf("Now try it on the analyzer\n\n");
+    }
 }
